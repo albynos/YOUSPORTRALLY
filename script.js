@@ -8,9 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const adminPassword = "!4AlbY7!";
 
-    let matches = JSON.parse(localStorage.getItem('matches')) || [];
-    let players = JSON.parse(localStorage.getItem('players')) || {};
-
     loginForm.addEventListener('submit', (event) => {
         event.preventDefault();
         const password = document.getElementById('password').value;
@@ -39,7 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const fullDateStr = `${dateStr} dalle ${startTimeStr} alle ${endTimeStr}`;
 
         const newMatch = {
-            id: Date.now(),
             date: fullDateStr,
             startTime: time,
             endTime: endTimeStr,
@@ -47,92 +43,91 @@ document.addEventListener('DOMContentLoaded', () => {
             status: 'open'
         };
 
-        matches.push(newMatch);
-        localStorage.setItem('matches', JSON.stringify(matches));
-        displayMatches();
-        displayAdminMatches();
+        db.collection('matches').add(newMatch).then(() => {
+            displayMatches();
+            displayAdminMatches();
+        });
     });
 
     function displayMatches() {
         matchesList.innerHTML = '';
-        matches.forEach(match => {
-            const remainingPlayers = 4 - match.players.length;
-            const matchItem = document.createElement('li');
-            matchItem.className = `match-item ${match.status}`;
-            matchItem.innerHTML = `
-                <div class="info">
-                    <div>${match.date}</div>
-                    <div class="status ${match.status}">${match.status === 'open' ? 'Aperta' : 'Chiusa'}</div>
-                    <div class="remaining-players">Ancora ${remainingPlayers} giocatori</div>
-                </div>
-                <ul class="players">
-                    ${match.players.map(p => `<li>${p.name} ${getEmoticon(p.level)}</li>`).join('')}
-                </ul>
-                <button class="add-player ${match.status === 'closed' ? 'hidden' : ''}">${match.status === 'closed' ? 'Chiuso' : 'Aggiungimi'}</button>
-            `;
+        db.collection('matches').get().then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                const match = doc.data();
+                const matchItem = document.createElement('li');
+                matchItem.className = `match-item ${match.status}`;
+                matchItem.innerHTML = `
+                    <div class="info">
+                        <div>${match.date}</div>
+                        <div class="status ${match.status}">${match.status === 'open' ? 'Aperta' : 'Chiusa'}</div>
+                        <div class="remaining-players">Ancora ${4 - match.players.length} giocatori</div>
+                    </div>
+                    <ul class="players">
+                        ${match.players.map(p => `<li>${p.name} ${getEmoticon(p.level)}</li>`).join('')}
+                    </ul>
+                    <button class="add-player ${match.status === 'closed' ? 'hidden' : ''}">${match.status === 'closed' ? 'Chiuso' : 'Aggiungimi'}</button>
+                `;
 
-            if (match.status !== 'closed') {
-                matchItem.querySelector('.add-player').addEventListener('click', () => addPlayerToMatch(match.id));
-            }
-            
-            matchesList.appendChild(matchItem);
+                if (match.status !== 'closed') {
+                    matchItem.querySelector('.add-player').addEventListener('click', () => addPlayerToMatch(doc.id));
+                }
+                
+                matchesList.appendChild(matchItem);
+            });
         });
     }
 
     function displayAdminMatches() {
         adminMatchesList.innerHTML = '';
-        matches.forEach(match => {
-            const matchItem = document.createElement('li');
-            matchItem.className = `admin-match-item ${match.status}`;
-            matchItem.innerHTML = `
-                <div class="info">
-                    <div>${match.date}</div>
-                    <div class="status ${match.status}">${match.status === 'open' ? 'Aperta' : 'Chiusa'}</div>
-                </div>
-                <ul class="players">
-                    ${match.players.map(p => `<li>${p.name} ${getEmoticon(p.level)}</li>`).join('')}
-                </ul>
-                <button class="admin-action edit-match">Modifica</button>
-                <button class="admin-action delete-match">Elimina</button>
-            `;
+        db.collection('matches').get().then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                const match = doc.data();
+                const matchItem = document.createElement('li');
+                matchItem.className = `admin-match-item ${match.status}`;
+                matchItem.innerHTML = `
+                    <div class="info">
+                        <div>${match.date}</div>
+                        <div class="status ${match.status}">${match.status === 'open' ? 'Aperta' : 'Chiusa'}</div>
+                    </div>
+                    <ul class="players">
+                        ${match.players.map(p => `<li>${p.name} ${getEmoticon(p.level)}</li>`).join('')}
+                    </ul>
+                    <button class="admin-action edit-match">Modifica</button>
+                    <button class="admin-action delete-match">Elimina</button>
+                `;
 
-            matchItem.querySelector('.edit-match').addEventListener('click', () => editMatch(match.id));
-            matchItem.querySelector('.delete-match').addEventListener('click', () => deleteMatch(match.id));
-            
-            adminMatchesList.appendChild(matchItem);
+                matchItem.querySelector('.edit-match').addEventListener('click', () => editMatch(doc.id));
+                matchItem.querySelector('.delete-match').addEventListener('click', () => deleteMatch(doc.id));
+                
+                adminMatchesList.appendChild(matchItem);
+            });
         });
     }
 
     function addPlayerToMatch(matchId) {
         const playerName = prompt('Inserisci il tuo nome');
-        let playerLevel = players[playerName] || prompt('Inserisci il tuo livello (rana, volpe, leone)');
+        let playerLevel = prompt('Inserisci il tuo livello (rana, volpe, leone)');
 
-        if (!players[playerName]) {
-            players[playerName] = playerLevel;
-            localStorage.setItem('players', JSON.stringify(players));
-        }
+        const player = { name: playerName, level: playerLevel };
 
-        const match = matches.find(m => m.id === matchId);
+        db.collection('matches').doc(matchId).get().then((doc) => {
+            const match = doc.data();
+            if (match.players.length === 3) {
+                match.players.push({ name: 'Graziella', level: 'unicorno' });
+            }
 
-        // Check if Graziella is already in the match
-        const graziellaIndex = match.players.findIndex(p => p.name === 'Graziella');
-        if (graziellaIndex !== -1) {
-            match.players.splice(graziellaIndex, 1); // Remove Graziella
-        }
+            match.players.push(player);
 
-        match.players.push({ name: playerName, level: playerLevel });
+            // Check if match is closed
+            if (match.players.length === 4 && !match.players.some(p => p.name === 'Graziella')) {
+                match.status = 'closed';
+            }
 
-        if (match.players.length === 3) {
-            match.players.push({ name: 'Graziella', level: 'unicorno' });
-        }
-
-        if (match.players.length === 4 && !match.players.some(p => p.name === 'Graziella')) {
-            match.status = 'closed';
-        }
-
-        localStorage.setItem('matches', JSON.stringify(matches));
-        displayMatches();
-        displayAdminMatches();
+            db.collection('matches').doc(matchId).update(match).then(() => {
+                displayMatches();
+                displayAdminMatches();
+            });
+        });
     }
 
     function editMatch(matchId) {
@@ -141,10 +136,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function deleteMatch(matchId) {
-        matches = matches.filter(match => match.id !== matchId);
-        localStorage.setItem('matches', JSON.stringify(matches));
-        displayMatches();
-        displayAdminMatches();
+        db.collection('matches').doc(matchId).delete().then(() => {
+            displayMatches();
+            displayAdminMatches();
+        });
     }
 
     function getEmoticon(level) {
@@ -164,8 +159,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function clearOldMatches() {
         const today = new Date();
-        matches = matches.filter(match => new Date(match.date.split(' dalle ')[0]) >= today);
-        localStorage.setItem('matches', JSON.stringify(matches));
+        db.collection('matches').get().then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                const match = doc.data();
+                if (new Date(match.date.split(' dalle ')[0]) < today) {
+                    db.collection('matches').doc(doc.id).delete();
+                }
+            });
+        });
         displayMatches();
         displayAdminMatches();
     }
