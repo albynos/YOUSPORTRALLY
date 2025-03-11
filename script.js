@@ -44,8 +44,12 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         db.collection('matches').add(newMatch).then(() => {
+            alert('Partita creata con successo!');
             displayMatches();
             displayAdminMatches();
+        }).catch((error) => {
+            console.error("Errore nella creazione della partita: ", error);
+            alert('Errore nella creazione della partita.');
         });
     });
 
@@ -74,6 +78,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 matchesList.appendChild(matchItem);
             });
+        }).catch((error) => {
+            console.error("Errore nel recupero delle partite: ", error);
+            alert('Errore nel recupero delle partite.');
         });
     }
 
@@ -101,6 +108,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 adminMatchesList.appendChild(matchItem);
             });
+        }).catch((error) => {
+            console.error("Errore nel recupero delle partite: ", error);
+            alert('Errore nel recupero delle partite.');
         });
     }
 
@@ -127,6 +137,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 displayMatches();
                 displayAdminMatches();
             });
+        }).catch((error) => {
+            console.error("Errore nell'aggiunta del giocatore: ", error);
+            alert('Errore nell\'aggiunta del giocatore.');
         });
     }
 
@@ -139,6 +152,9 @@ document.addEventListener('DOMContentLoaded', () => {
         db.collection('matches').doc(matchId).delete().then(() => {
             displayMatches();
             displayAdminMatches();
+        }).catch((error) => {
+            console.error("Errore nell'eliminazione della partita: ", error);
+            alert('Errore nell\'eliminazione della partita.');
         });
     }
 
@@ -166,6 +182,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     db.collection('matches').doc(doc.id).delete();
                 }
             });
+        }).catch((error) => {
+            console.error("Errore nella rimozione delle vecchie partite: ", error);
+            alert('Errore nella rimozione delle vecchie partite.');
         });
         displayMatches();
         displayAdminMatches();
