@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('Document loaded');
     const loginForm = document.getElementById('login-form');
     const newMatchForm = document.getElementById('new-match-form');
     const matchesList = document.getElementById('matches-list');
@@ -11,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loginForm.addEventListener('submit', (event) => {
         event.preventDefault();
         const password = document.getElementById('password').value;
+        console.log('Password entered:', password);
         if (password === adminPassword) {
             loginSection.classList.add('hidden');
             adminSection.classList.remove('hidden');
@@ -26,6 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const time = document.getElementById('match-time').value;
         const duration = parseFloat(document.getElementById('match-duration').value);
 
+        console.log('Creating new match with date:', date, 'time:', time, 'duration:', duration);
+
         const startTime = new Date(`${date}T${time}:00`);
         const endTime = new Date(startTime.getTime() + duration * 60 * 60 * 1000);
         const endTimeStr = endTime.toTimeString().substring(0, 5);
@@ -34,6 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const dateStr = startTime.toLocaleDateString('it-IT', options);
         const startTimeStr = startTime.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
         const fullDateStr = `${dateStr} dalle ${startTimeStr} alle ${endTimeStr}`;
+
+        console.log('Full date string:', fullDateStr);
 
         const newMatch = {
             date: fullDateStr,
@@ -58,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
         db.collection('matches').get().then((querySnapshot) => {
             querySnapshot.forEach((doc) => {
                 const match = doc.data();
+                console.log('Match data:', match);
                 const matchItem = document.createElement('li');
                 matchItem.className = `match-item ${match.status}`;
                 matchItem.innerHTML = `
@@ -89,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         db.collection('matches').get().then((querySnapshot) => {
             querySnapshot.forEach((doc) => {
                 const match = doc.data();
+                console.log('Admin match data:', match);
                 const matchItem = document.createElement('li');
                 matchItem.className = `admin-match-item ${match.status}`;
                 matchItem.innerHTML = `
