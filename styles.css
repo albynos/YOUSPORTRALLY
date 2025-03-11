@@ -15,7 +15,7 @@ body {
 .container {
     width: 100%;
     max-width: 400px;
-    background: linear-gradient(135deg, #ff7e5f, #feb47b);
+    background: linear-gradient(135deg, #a8ff78, #78ffd6); /* Verde lime */
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     overflow: hidden;
