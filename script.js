@@ -1,5 +1,3 @@
-import { db } from './firebase-config.js';
-
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Document loaded');
     const loginForm = document.getElementById('login-form');
