@@ -1,3 +1,5 @@
+import { db } from './firebase-config.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Document loaded');
     const loginForm = document.getElementById('login-form');
@@ -49,7 +51,10 @@ document.addEventListener('DOMContentLoaded', () => {
             status: 'open'
         };
 
+        console.log('Adding new match to Firestore:', newMatch);
+
         db.collection('matches').add(newMatch).then(() => {
+            console.log('Match added successfully');
             alert('Partita creata con successo!');
             displayMatches();
             displayAdminMatches();
@@ -60,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function displayMatches() {
+        console.log('Displaying matches');
         matchesList.innerHTML = '';
         db.collection('matches').get().then((querySnapshot) => {
             querySnapshot.forEach((doc) => {
@@ -92,6 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayAdminMatches() {
+        console.log('Displaying admin matches');
         adminMatchesList.innerHTML = '';
         db.collection('matches').get().then((querySnapshot) => {
             querySnapshot.forEach((doc) => {
