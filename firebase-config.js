@@ -5,7 +5,7 @@ const firebaseConfig = {
     projectId: "yousport-rally",
     storageBucket: "yousport-rally.firebasestorage.app",
     messagingSenderId: "1080944459276",
-    appId: "YOUR_APP_ID", // Inserisci il tuo App ID qui
+    appId: "YOUR_APP_ID",
     measurementId: "1:1080944459276:web:4a1b509238b5e40f8f7829"
 };
 
