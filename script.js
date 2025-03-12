@@ -51,16 +51,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
         console.log('Adding new match to Firestore:', newMatch);
 
-        db.collection('matches').add(newMatch).then(() => {
-            console.log('Match added successfully');
-            alert('Partita creata con successo!');
-            displayMatches();
-            displayAdminMatches();
-        }).catch((error) => {
-            console.error("Errore nella creazione della partita: ", error);
-            alert('Errore nella creazione della partita.');
-        });
+        addMatchToFirestore(newMatch);
     });
+
+    function addMatchToFirestore(match) {
+        const maxAttempts = 3;
+        let attempts = 0;
+
+        function tryAddMatch() {
+            db.collection('matches').add(match).then(() => {
+                console.log('Match added successfully');
+                alert('Partita creata con successo!');
+                displayMatches();
+                displayAdminMatches();
+            }).catch((error) => {
+                attempts++;
+                console.error(`Errore nella creazione della partita (tentativo ${attempts}/${maxAttempts}): `, error);
+                if (attempts < maxAttempts) {
+                    console.log('Ritento di aggiungere la partita...');
+                    setTimeout(tryAddMatch, 2000); // Riprova dopo 2 secondi
+                } else {
+                    alert('Errore nella creazione della partita. Riprova più tardi.');
+                }
+            });
+        }
+
+        tryAddMatch();
+    }
 
     function displayMatches() {
         console.log('Displaying matches');
@@ -141,4 +158,68 @@ document.addEventListener('DOMContentLoaded', () => {
 
             match.players.push(player);
 
-            // Check ▋
+            // Check if match is closed
+            if (match.players.length === 4 && !match.players.some(p => p.name === 'Graziella')) {
+                match.status = 'closed';
+            }
+
+            db.collection('matches').doc(matchId).update(match).then(() => {
+                displayMatches();
+                displayAdminMatches();
+            });
+        }).catch((error) => {
+            console.error("Errore nell'aggiunta del giocatore: ", error);
+            alert('Errore nell\'aggiunta del giocatore.');
+        });
+    }
+
+    function editMatch(matchId) {
+        // Implementa la logica di modifica della partita
+        alert('Funzione di modifica non ancora implementata');
+    }
+
+    function deleteMatch(matchId) {
+        db.collection('matches').doc(matchId).delete().then(() => {
+            displayMatches();
+            displayAdminMatches();
+        }).catch((error) => {
+            console.error("Errore nell'eliminazione della partita: ", error);
+            alert('Errore nell\'eliminazione della partita.');
+        });
+    }
+
+    function getEmoticon(level) {
+        switch (level) {
+            case 'rana':
+                return '🐸';
+            case 'volpe':
+                return '🦊';
+            case 'leone':
+                return '🦁';
+            case 'unicorno':
+                return '🦄';
+            default:
+                return '';
+        }
+    }
+
+    function clearOldMatches() {
+        const today = new Date();
+        db.collection('matches').get().then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                const match = doc.data();
+                if (new Date(match.date.split(' dalle ')[0]) < today) {
+                    db.collection('matches').doc(doc.id).delete();
+                }
+            });
+        }).catch((error) => {
+            console.error("Errore nella rimozione delle vecchie partite: ", error);
+            alert('Errore nella rimozione delle vecchie partite.');
+        });
+        displayMatches();
+        displayAdminMatches();
+    }
+
+    clearOldMatches();
+    displayMatches();
+});
