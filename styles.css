@@ -1,0 +1,128 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    margin: 0;
+    color: #333;
+}
+
+header h2 {
+    margin: 0;
+    color: #666;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+label {
+    margin-bottom: 5px;
+    color: #333;
+}
+
+input[type="password"],
+select {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.hidden {
+    display: none;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status {
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: #fff;
+}
+
+.status.open {
+    background-color: #28a745;
+}
+
+.status.closed {
+    background-color: #dc3545;
+}
+
+.remaining-players {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.players {
+    margin-top: 10px;
+}
+
+.players li {
+    padding: 5px 0;
+}
+
+.add-player {
+    margin-top: 10px;
+    background-color: #ffc107;
+}
+
+.add-player.hidden {
+    display: none;
+}
+
+.admin-action {
+    margin-top: 10px;
+    background-color: #17a2b8;
+}
+
+.admin-action.delete-match {
+    background-color: #dc3545;
+}
